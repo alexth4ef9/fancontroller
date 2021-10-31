@@ -1,0 +1,18 @@
+{
+    "files.watcherExclude": {
+        "CANopenNode/**": true,
+        "ChibiOS/**": true,
+        "ChibiOS-Contrib/**": true,
+        "littlefs/**": true,
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        ".dep/**" : true,
+        "build/**" : true,        
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.cortex-debug*": true,
+        ".dep": true,
+        "build": true,
+    }
+}

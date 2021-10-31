@@ -1,0 +1,9 @@
+[submodule "ChibiOS"]
+	path = ChibiOS
+	url = https://github.com/alexth4ef9/ChibiOS.git
+[submodule "CANopenNode"]
+	path = CANopenNode
+	url = https://github.com/alexth4ef9/CANopenNode.git
+[submodule "littlefs"]
+	path = littlefs
+	url = https://github.com/alexth4ef9/littlefs.git
