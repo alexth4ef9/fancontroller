@@ -1,24 +1,23 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "type": "cortex-debug",
-        "request": "launch",
-        "name": "debug fancontroller",
-        "cwd": "${workspaceFolder}",
-        "executable": "${workspaceFolder}/build/fancontroller.elf",
-        "serverpath": "JLinkGDBServerCLExe",
-        "serverArgs": [
-            "-nogui",
-            "-timeout",             
-            "500",
-        ],
-        "gdbPath": "arm-eabi-gdb",
-        "servertype": "jlink",
-        "device": "STM32F303RC",
-        "interface": "swd",
-        "svdFile": "${workspaceFolder}/svd/STM32F303.svd"
-      }
-    ]
-  }
-  
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "cortex-debug",
+      "request": "launch",
+      "name": "debug fancontroller",
+      "cwd": "${workspaceFolder}",
+      "executable": "${workspaceFolder}/build/fancontroller.elf",
+      "serverpath": "JLinkGDBServerCLExe",
+      "serverArgs": [
+        "-nogui",
+        "-timeout",
+        "500",
+      ],
+      "gdbPath": "arm-eabi-gdb",
+      "servertype": "jlink",
+      "device": "STM32F303RC",
+      "interface": "swd",
+      "svdFile": "${workspaceFolder}/svd/STM32F303.svd"
+    }
+  ]
+}

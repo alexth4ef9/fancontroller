@@ -37,11 +37,13 @@
                 "${workspaceFolder}/ChibiOS/os/common/portability/GCC",
                 "${workspaceFolder}/ChibiOS/os/common/ports/ARM-common",
                 "${workspaceFolder}/ChibiOS/os/common/ports/ARMv7-M",
-                "${workspaceFolder}/ChibiOS/test/lib",
-                "${workspaceFolder}/ChibiOS/test/rt/source/test",
-                "${workspaceFolder}/ChibiOS/test/oslib/source/test"
+                "${workspaceFolder}/ChibiOS/os/hal/lib/streams",
+                "${workspaceFolder}/ChibiOS/os/various/shell",
+                "${workspaceFolder}/src"
             ],
-            "defines": [],
+            "defines": [
+                "SHELL_CONFIG_FILE"
+            ],
             "compilerPath": "/usr/bin/arm-none-eabi-gcc",
             "cStandard": "c99",
             "cppStandard": "c++17",

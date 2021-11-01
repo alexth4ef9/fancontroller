@@ -1,3 +1,7 @@
+/* SPDX-License-Identifier: GPL-3.0-only
+   modified by alexth4ef9 for fan controller project
+*/
+
 /*
     ChibiOS - Copyright (C) 2006..2020 Giovanni Di Sirio
 

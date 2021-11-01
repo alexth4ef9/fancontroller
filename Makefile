@@ -109,9 +109,8 @@ include $(CHIBIOS)/os/common/ports/ARMv7-M/compilers/GCC/mk/port.mk
 # Auto-build files in ./source recursively.
 include $(CHIBIOS)/tools/mk/autobuild.mk
 # Other files (optional).
-include $(CHIBIOS)/test/lib/test.mk
-include $(CHIBIOS)/test/rt/rt_test.mk
-include $(CHIBIOS)/test/oslib/oslib_test.mk
+include $(CHIBIOS)/os/hal/lib/streams/streams.mk
+include $(CHIBIOS)/os/various/shell/shell.mk
 
 # Define linker script file here
 LDSCRIPT = STM32F303xC_CCM.ld
@@ -121,6 +120,8 @@ LDSCRIPT = STM32F303xC_CCM.ld
 CSRC = $(ALLCSRC) \
        $(TESTSRC) \
        src/usbcfg.c \
+       src/led.c \
+       src/cli.c \
        main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -151,13 +152,13 @@ CPPWARN = -Wall -Wextra -Wundef -Wdouble-promotion -Wfloat-conversion
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS =
+UDEFS = -DSHELL_CONFIG_FILE
 
 # Define ASM defines here
 UADEFS =
 
 # List all user directories here
-UINCDIR =
+UINCDIR = src
 
 # List the user directory to look for the libraries here
 ULIBDIR =
