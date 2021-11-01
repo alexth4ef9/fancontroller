@@ -5,8 +5,8 @@
 #include "ch.h"
 #include "hal.h"
 
-#include "cli.h"
-#include "led.h"
+#include "cli/cli.h"
+#include "led/led.h"
 
 int main(void)
 {

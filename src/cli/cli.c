@@ -8,9 +8,9 @@
 #include "chprintf.h"
 
 #include "cli.h"
-#include "led.h"
+#include "led/led.h"
 #include "shell.h"
-#include "usbcfg.h"
+#include "usb/usbcfg.h"
 
 static void cmd_reset(BaseSequentialStream *chp, int argc, char *argv[])
 {

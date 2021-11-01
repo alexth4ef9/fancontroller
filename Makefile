@@ -10,7 +10,7 @@ endif
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
-  USE_COPT = 
+  USE_COPT =
 endif
 
 # C++ specific options here (added to USE_OPT).
@@ -25,7 +25,7 @@ endif
 
 # Linker extra options here.
 ifeq ($(USE_LDOPT),)
-  USE_LDOPT = 
+  USE_LDOPT =
 endif
 
 # Enable this if you want link time optimizations (LTO).
@@ -119,9 +119,9 @@ LDSCRIPT = STM32F303xC_CCM.ld
 # setting.
 CSRC = $(ALLCSRC) \
        $(TESTSRC) \
-       src/usbcfg.c \
-       src/led.c \
-       src/cli.c \
+       src/usb/usbcfg.c \
+       src/led/led.c \
+       src/cli/cli.c \
        main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
