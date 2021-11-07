@@ -5,8 +5,9 @@
 #include "ch.h"
 #include "hal.h"
 
-#include "cli/cli.h"
-#include "led/led.h"
+#include "cli.h"
+#include "fs.h"
+#include "led.h"
 
 int main(void)
 {
@@ -14,6 +15,7 @@ int main(void)
     chSysInit();
 
     ledInit();
+    fsInit();
     cliInit();
 
     while (true) {

@@ -7,3 +7,6 @@
 [submodule "littlefs"]
 	path = littlefs
 	url = https://github.com/alexth4ef9/littlefs.git
+[submodule "ChibiOS-Contrib"]
+	path = ChibiOS-Contrib
+	url = https://github.com/alexth4ef9/ChibiOS-Contrib.git

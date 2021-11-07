@@ -8,9 +8,14 @@
 #include "chprintf.h"
 
 #include "cli.h"
-#include "led/led.h"
+#include "fs.h"
+#include "led.h"
 #include "shell.h"
-#include "usb/usbcfg.h"
+#include "usbcfg.h"
+#include "util.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 static void cmd_reset(BaseSequentialStream *chp, int argc, char *argv[])
 {
@@ -23,8 +28,77 @@ static void cmd_reset(BaseSequentialStream *chp, int argc, char *argv[])
     NVIC_SystemReset();
 }
 
+static void cmd_identity(BaseSequentialStream *chp, int argc, char *argv[])
+{
+    static const char filename[] = "identity";
+    static const char filename_tmp[] = "identity.tmp";
+    static const char *items[] = {
+        "Vendor ID:",
+        "Product:  ",
+        "Revision: ",
+        "S/N:      ",
+    };
+
+    if (argc > 0) {
+        if (strcmp(argv[0], "set") == 0 && argc != 5) {
+            chprintf(chp,
+                     "Usage: identity set vendor_id product_id revision "
+                     "serial" SHELL_NEWLINE_STR);
+            return;
+        } else if (strcmp(argv[0], "show") == 0 && argc != 1) {
+            chprintf(chp, "Usage: identity show" SHELL_NEWLINE_STR);
+            return;
+        }
+    } else {
+        chprintf(chp,
+                 "Usage: identity set vendor_id product_id revision "
+                 "serial" SHELL_NEWLINE_STR);
+        chprintf(chp, "       identity show" SHELL_NEWLINE_STR);
+        return;
+    }
+
+    if (strcmp(argv[0], "set") == 0) {
+        uint32_t buffer[COUNTOF(items)];
+        for (unsigned i = 0; i < COUNTOF(items); i++) {
+            char *endptr;
+            buffer[i] = strtoul(argv[i + 1], &endptr, 0);
+            if (buffer[i] == 0 && *endptr != '\0') {
+                chprintf(chp, "invalid parameter" SHELL_NEWLINE_STR);
+                return;
+            }
+        }
+        if (fsWrite(filename_tmp, buffer, sizeof(buffer)) == sizeof(buffer)) {
+            if (fsRename(filename_tmp, filename) == 0) {
+                chprintf(chp, "set identity to:" SHELL_NEWLINE_STR);
+                for (unsigned i = 0; i < COUNTOF(items); i++) {
+                    chprintf(chp,
+                             "  %s 0x%08X" SHELL_NEWLINE_STR,
+                             items[i],
+                             buffer[i]);
+                }
+            }
+        } else {
+            chprintf(chp, "failed to set identity" SHELL_NEWLINE_STR);
+        }
+    } else if (strcmp(argv[0], "show") == 0) {
+        uint32_t buffer[COUNTOF(items)];
+        chprintf(chp, "Identity:" SHELL_NEWLINE_STR);
+        if (fsRead(filename, buffer, sizeof(buffer)) == sizeof(buffer)) {
+            for (unsigned i = 0; i < COUNTOF(items); i++) {
+                chprintf(
+                    chp, "  %s 0x%08X" SHELL_NEWLINE_STR, items[i], buffer[i]);
+            }
+        } else {
+            for (unsigned i = 0; i < COUNTOF(items); i++) {
+                chprintf(chp, "  %s -" SHELL_NEWLINE_STR, items[i]);
+            }
+        }
+    }
+}
+
 static const ShellCommand commands[] = {
     {"reset", cmd_reset},
+    {"identity", cmd_identity},
     {NULL, NULL},
 };
 

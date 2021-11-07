@@ -144,7 +144,6 @@
 #define PWMD_TIM8_CH3_D37_O PWMD8
 #define SPI_SPI2_MISO_D33 2
 #define SPI_SPI2_MOSI_D34 2
-#define SPI_SPI2_NSS_D31 2
 #define SPI_SPI2_SCK_D32 2
 #define TIM_TIM3_CH1_D12_I 3
 #define TIM_TIM3_CH2_D10_I 3
@@ -287,7 +286,7 @@
     PIN_MODE_ALTERNATE(9) | \
     PIN_MODE_ANALOG(10) | \
     PIN_MODE_ANALOG(11) | \
-    PIN_MODE_ALTERNATE(12) | \
+    PIN_MODE_OUTPUT(12) | \
     PIN_MODE_ALTERNATE(13) | \
     PIN_MODE_ALTERNATE(14) | \
     PIN_MODE_ALTERNATE(15) | \
@@ -363,7 +362,7 @@
     PIN_ODR_LOW(9) | \
     PIN_ODR_LOW(10) | \
     PIN_ODR_LOW(11) | \
-    PIN_ODR_LOW(12) | \
+    PIN_ODR_HIGH(12) | \
     PIN_ODR_LOW(13) | \
     PIN_ODR_LOW(14) | \
     PIN_ODR_LOW(15) | \
@@ -385,7 +384,7 @@
     PIN_AFIO_AF(9, 9) | \
     PIN_AFIO_AF(10, 0) | \
     PIN_AFIO_AF(11, 0) | \
-    PIN_AFIO_AF(12, 5) | \
+    PIN_AFIO_AF(12, 0) | \
     PIN_AFIO_AF(13, 5) | \
     PIN_AFIO_AF(14, 5) | \
     PIN_AFIO_AF(15, 5) | \

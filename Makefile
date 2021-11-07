@@ -119,9 +119,14 @@ LDSCRIPT = STM32F303xC_CCM.ld
 # setting.
 CSRC = $(ALLCSRC) \
        $(TESTSRC) \
-       src/usb/usbcfg.c \
-       src/led/led.c \
+       $(CHIBIOS)/os/hal/lib/complex/serial_nor/hal_serial_nor.c \
+       littlefs/lfs.c \
+       littlefs/lfs_util.c \
        src/cli/cli.c \
+       src/fs/fs.c \
+       src/led/led.c \
+       src/usb/usbcfg.c \
+       src/winbond_q25w/hal_flash_device.c \
        main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -152,13 +157,24 @@ CPPWARN = -Wall -Wextra -Wundef -Wdouble-promotion -Wfloat-conversion
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DSHELL_CONFIG_FILE
+UDEFS = -DLFS_NO_MALLOC \
+      -DLFS_NO_ASSERT \
+      -DLFS_NO_DEBUG \
+      -DLFS_NO_WARN \
+      -DLFS_NO_ERROR
 
 # Define ASM defines here
 UADEFS =
 
 # List all user directories here
-UINCDIR = src
+UINCDIR = $(CHIBIOS)/os/hal/lib/complex/serial_nor \
+        src \
+        src/cli \
+        src/fs \
+        src/led \
+        src/usb \
+        src/winbond_q25w \
+        littlefs
 
 # List the user directory to look for the libraries here
 ULIBDIR =

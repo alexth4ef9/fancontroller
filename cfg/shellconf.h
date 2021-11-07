@@ -3,6 +3,11 @@
 */
 
 /**
+ * @brief   Shell maximum arguments per command.
+ */
+#define SHELL_MAX_ARGUMENTS 8
+
+/**
  * @brief   Enable shell command history
  */
 #define SHELL_USE_HISTORY TRUE

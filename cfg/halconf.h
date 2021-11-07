@@ -550,6 +550,36 @@
 #define WSPI_USE_MUTUAL_EXCLUSION           TRUE
 #endif
 
+/*===========================================================================*/
+/* Serial NOR driver related settings.                                       */
+/*===========================================================================*/
+
+/**
+ * @brief   Physical transport interface.
+ */
+#if !defined(SNOR_BUS_DRIVER) || defined(__DOXYGEN__)
+#define SNOR_BUS_DRIVER                     SNOR_BUS_DRIVER_SPI
+#endif
+
+
+/**
+ * @brief   Shared bus switch.
+ */
+#if !defined(SNOR_SHARED_BUS) || defined(__DOXYGEN__)
+#define SNOR_SHARED_BUS                     FALSE
+#endif
+
+/*===========================================================================*/
+/* Shell related settings.                                                   */
+/*===========================================================================*/
+
+/**
+ * @brief   Use shellconf.h include.
+ */
+#if !defined(SHELL_CONFIG_FILE) || defined(__DOXYGEN__)
+#define SHELL_CONFIG_FILE                   TRUE
+#endif
+
 #endif /* HALCONF_H */
 
 /** @} */

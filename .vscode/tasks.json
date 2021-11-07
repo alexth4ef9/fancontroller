@@ -9,13 +9,19 @@
                 "-C",
                 "${workspaceFolder}",
             ],
+            "options": {
+                "env": {
+                    "USE_OPT": "-Og -ggdb -falign-functions=16 -DCH_DBG_ENABLE_ASSERTS=TRUE",
+                    "USE_LTO": "no",
+                },
+            },
             "problemMatcher": [
                 "$gcc"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
-        }
+            },
+        },
     ]
 }
