@@ -4,5 +4,8 @@
 
 #pragma once
 
-void cliInit(void);
+typedef struct ch_thread thread_t;
+typedef struct _leds_t leds_t;
+
+void cliStart(thread_t *threadFsSettings, leds_t *leds, int statusLed);
 void cliCheck(void);

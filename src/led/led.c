@@ -6,79 +6,76 @@
 #include "hal.h"
 
 #include "led.h"
-#include "util.h"
 
-typedef struct _ledpad_t ledpad_t;
+#include <stdbool.h>
 
-struct _ledpad_t {
+typedef struct {
     stm32_gpio_t *port;
     uint32_t pad;
-};
-
-typedef struct _led_t led_t;
-
-struct _led_t {
     uint8_t on;
     uint8_t off;
     uint8_t count;
-    uint8_t state;
+    bool state;
+} led_t;
+
+struct _leds_t {
+    size_t count;
+    led_t leds[];
 };
 
-static const ledpad_t ledpads[] = {
-    {PORT_D13_SCK_LED1, PAD_D13_SCK_LED1},
-    {PORT_D3_LED2, PAD_D3_LED2},
-};
-
-static led_t ledstates[COUNTOF(ledpads)];
-
-static THD_WORKING_AREA(waThreadLeds, 128);
 static THD_FUNCTION(ThreadLeds, arg)
 {
-    (void)arg;
+    leds_t *leds = (leds_t *)arg;
     chRegSetThreadName("leds");
     while (true) {
-        for (size_t i = 0; i < COUNTOF(ledpads); i++) {
-            if (ledstates[i].count == 0) {
-                if (ledstates[i].state == 0) {
-                    if (ledstates[i].on > 0) {
-                        palSetPad(ledpads[i].port, ledpads[i].pad);
+        for (size_t i = 0; i < leds->count; i++) {
+            if (leds->leds[i].count == 0) {
+                if (!leds->leds[i].state) {
+                    if (leds->leds[i].on > 0) {
+                        palSetPad(leds->leds[i].port, leds->leds[i].pad);
                     }
-                    ledstates[i].count = ledstates[i].on;
-                    ledstates[i].state = 1;
+                    leds->leds[i].count = leds->leds[i].on;
+                    leds->leds[i].state = true;
                 } else {
-                    if (ledstates[i].off > 0) {
-                        palClearPad(ledpads[i].port, ledpads[i].pad);
+                    if (leds->leds[i].off > 0) {
+                        palClearPad(leds->leds[i].port, leds->leds[i].pad);
                     }
-                    ledstates[i].count = ledstates[i].off;
-                    ledstates[i].state = 0;
+                    leds->leds[i].count = leds->leds[i].off;
+                    leds->leds[i].state = false;
                 }
             }
-            if (ledstates[i].count > 0) {
-                ledstates[i].count--;
+            if (leds->leds[i].count > 0) {
+                leds->leds[i].count--;
             }
         }
         chThdSleepMilliseconds(100);
     }
 }
 
-void ledInit(void)
+leds_t *ledStart(
+    void *wsp, size_t size, tprio_t prio, const ledpad_t *pads, size_t n_pads)
 {
-    for (size_t i = 0; i < COUNTOF(ledpads); i++) {
-        ledstates[i].on = 0;
-        ledstates[i].off = 0;
-        ledstates[i].count = 0;
-        ledstates[i].state = 0;
+    leds_t *leds = chCoreAlloc(sizeof(leds_t) + n_pads * sizeof(led_t));
+    osalDbgAssert(leds, "failed to allocate leds instance");
+    leds->count = n_pads;
+    for (size_t i = 0; i < n_pads; i++) {
+        leds->leds[i].port = pads[i].port;
+        leds->leds[i].pad = pads[i].pad;
+        leds->leds[i].on = 0;
+        leds->leds[i].off = 0;
+        leds->leds[i].count = 0;
+        leds->leds[i].state = 0;
     }
-    chThdCreateStatic(
-        waThreadLeds, sizeof(waThreadLeds), NORMALPRIO, ThreadLeds, NULL);
+
+    chThdCreateStatic(wsp, size, prio, ThreadLeds, leds);
+
+    return leds;
 }
 
-void ledSet(enum LEDS n, uint8_t on, uint8_t off)
+void ledSet(leds_t *leds, int n, uint8_t on, uint8_t off)
 {
-    ledstates[n].on = on;
-    ledstates[n].off = off;
-    for (size_t i = 0; i < COUNTOF(ledpads); i++) {
-        ledstates[i].count = 0;
-        ledstates[i].state = 0;
-    }
+    leds->leds[n].on = on;
+    leds->leds[n].off = off;
+    leds->leds[n].count = 0;
+    leds->leds[n].state = 0;
 }

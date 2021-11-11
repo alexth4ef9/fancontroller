@@ -123,6 +123,8 @@ CSRC = $(ALLCSRC) \
        littlefs/lfs.c \
        littlefs/lfs_util.c \
        src/cli/cli.c \
+       src/cli/cmd_identity.c \
+       src/cli/cmd_reset.c \
        src/fs/fs.c \
        src/led/led.c \
        src/usb/usbcfg.c \

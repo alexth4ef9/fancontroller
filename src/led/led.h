@@ -6,10 +6,13 @@
 
 #include <stdint.h>
 
-enum LEDS {
-    LED1 = 0,
-    LED2 = 1,
-};
+typedef struct {
+    stm32_gpio_t *port;
+    uint32_t pad;
+} ledpad_t;
 
-void ledInit(void);
-void ledSet(enum LEDS n, uint8_t on, uint8_t off);
+typedef struct _leds_t leds_t;
+
+leds_t *ledStart(
+    void *wsp, size_t size, tprio_t prio, const ledpad_t *pads, size_t n_pads);
+void ledSet(leds_t *leds, int n, uint8_t on, uint8_t off);
