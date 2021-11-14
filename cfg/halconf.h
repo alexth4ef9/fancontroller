@@ -569,17 +569,6 @@
 #define SNOR_SHARED_BUS                     FALSE
 #endif
 
-/*===========================================================================*/
-/* Shell related settings.                                                   */
-/*===========================================================================*/
-
-/**
- * @brief   Use shellconf.h include.
- */
-#if !defined(SHELL_CONFIG_FILE) || defined(__DOXYGEN__)
-#define SHELL_CONFIG_FILE                   TRUE
-#endif
-
 #endif /* HALCONF_H */
 
 /** @} */

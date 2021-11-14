@@ -125,6 +125,8 @@ CSRC = $(ALLCSRC) \
        src/cli/cli.c \
        src/cli/cmd_identity.c \
        src/cli/cmd_reset.c \
+       src/cli/cmd_ina3221.c \
+       src/drivers/ina3221.c \
        src/fs/fs.c \
        src/led/led.c \
        src/usb/usbcfg.c \
@@ -159,19 +161,24 @@ CPPWARN = -Wall -Wextra -Wundef -Wdouble-promotion -Wfloat-conversion
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DLFS_NO_MALLOC \
+UDEFS = -DCHPRINTF_USE_FLOAT=TRUE \
+      -DSHELL_CONFIG_FILE=TRUE \
+      -DLFS_NO_MALLOC \
       -DLFS_NO_ASSERT \
       -DLFS_NO_DEBUG \
       -DLFS_NO_WARN \
-      -DLFS_NO_ERROR
+      -DLFS_NO_ERROR \
+      -DINA3221_USE_I2C
 
 # Define ASM defines here
 UADEFS =
 
 # List all user directories here
 UINCDIR = $(CHIBIOS)/os/hal/lib/complex/serial_nor \
+        $(CHIBIOS)/os/ex/include \
         src \
         src/cli \
+        src/drivers \
         src/fs \
         src/led \
         src/usb \

@@ -12,10 +12,12 @@
 
 void cmd_identity(BaseSequentialStream *, int, char *[]);
 void cmd_reset(BaseSequentialStream *, int, char *[]);
+void cmd_ina3221(BaseSequentialStream *, int, char *[]);
 
 static const ShellCommand commands[] = {
     {"identity", cmd_identity},
     {"reset", cmd_reset},
+    {"ina3221", cmd_ina3221},
     {NULL, NULL},
 };
 
