@@ -7,9 +7,18 @@
 #include "ina3221.h"
 
 #define EX_INA3221_CONFIG_SHUNT_CT_SHIFT 3
+#define EX_INA3221_CONFIG_SHUNT_CT_MASK                                        \
+    (0x0007 << EX_INA3221_CONFIG_SHUNT_CT_SHIFT)
 #define EX_INA3221_CONFIG_BUS_CT_SHIFT 6
+#define EX_INA3221_CONFIG_BUS_CT_MASK (0x0007 << EX_INA3221_CONFIG_BUS_CT_SHIFT)
 #define EX_INA3221_CONFIG_AVG_SHIFT 9
-#define EX_INA3221_CONFIG_MASK 0x0007
+#define EX_INA3221_CONFIG_AVG_MASK (0x0007 << EX_INA3221_CONFIG_AVG_SHIFT)
+
+#define EX_INA3221_CHANNEL_MODE                                                \
+    (EX_INA3221_CONFIG_CH1EN | EX_INA3221_CONFIG_CH2EN |                       \
+     EX_INA3221_CONFIG_CH3EN | EX_INA3221_CONFIG_MODE1 |                       \
+     EX_INA3221_CONFIG_MODE2)
+
 
 #if (INA3221_USE_I2C)
 static msg_t ina3221I2CReadRegister(I2CDriver *i2cp,
@@ -36,12 +45,12 @@ static msg_t ina3221I2CWriteRegister(I2CDriver *i2cp,
                                      uint8_t reg,
                                      uint16_t tx)
 {
-    tx = __REVSH(tx);
     msg_t result =
         i2cMasterTransmitTimeout(i2cp, addr, &reg, 1, NULL, 0, TIME_INFINITE);
     if (result != MSG_OK) {
         return result;
     }
+    tx = __REVSH(tx);
     result = i2cMasterTransmitTimeout(
         i2cp, addr, (uint8_t *)&tx, 2, NULL, 0, TIME_INFINITE);
     return result;
@@ -80,33 +89,37 @@ static size_t sens_get_axes_number(void *ip)
     return 2 * INA3221_NUM_CHANNELS;
 }
 
+
 static msg_t sens_read_raw(void *ip, int32_t axes[])
 {
     static const uint8_t shunt_regs[INA3221_NUM_CHANNELS] = {
         EX_INA3221_REG_CHANNEL1_SHUNT_VOLTAGE,
         EX_INA3221_REG_CHANNEL2_SHUNT_VOLTAGE,
-        EX_INA3221_REG_CHANNEL2_SHUNT_VOLTAGE,
+        EX_INA3221_REG_CHANNEL3_SHUNT_VOLTAGE,
     };
     static const uint8_t bus_regs[INA3221_NUM_CHANNELS] = {
         EX_INA3221_REG_CHANNEL1_BUS_VOLTAGE,
         EX_INA3221_REG_CHANNEL2_BUS_VOLTAGE,
-        EX_INA3221_REG_CHANNEL2_BUS_VOLTAGE,
+        EX_INA3221_REG_CHANNEL3_BUS_VOLTAGE,
     };
 
-    uint16_t config = EX_INA3221_CONFIG_CH1EN | EX_INA3221_CONFIG_CH2EN |
-                      EX_INA3221_CONFIG_CH3EN | EX_INA3221_CONFIG_MODE1 |
-                      EX_INA3221_CONFIG_MODE2;
     uint16_t avg, ctshunt, ctbus;
 
-    msg_t result;
+    msg_t result = MSG_OK;
 
     osalDbgCheck(ip != NULL);
     osalDbgAssert((((INA3221Driver *)ip)->state == INA3221_READY),
                   "sense_read_raw(), invalid state");
 
-    avg = ((INA3221Driver *)ip)->config->avgmode & EX_INA3221_CONFIG_MASK;
-    ctshunt = ((INA3221Driver *)ip)->config->ctshunt & EX_INA3221_CONFIG_MASK;
-    ctbus = ((INA3221Driver *)ip)->config->ctbus & EX_INA3221_CONFIG_MASK;
+    avg = (((INA3221Driver *)ip)->config->avgmode
+           << EX_INA3221_CONFIG_AVG_SHIFT) &
+          EX_INA3221_CONFIG_AVG_MASK;
+    ctshunt = (((INA3221Driver *)ip)->config->ctshunt &
+               EX_INA3221_CONFIG_BUS_CT_SHIFT) &
+              EX_INA3221_CONFIG_BUS_CT_MASK;
+    ctbus = (((INA3221Driver *)ip)->config->ctbus &
+             EX_INA3221_CONFIG_SHUNT_CT_SHIFT) &
+            EX_INA3221_CONFIG_SHUNT_CT_MASK;
 
 #if INA3221_USE_I2C
     osalDbgAssert((((INA3221Driver *)ip)->config->i2cp->state == I2C_READY),
@@ -117,15 +130,12 @@ static msg_t sens_read_raw(void *ip, int32_t axes[])
              ((INA3221Driver *)ip)->config->i2ccfg);
 #endif
 
-    config |= (avg << EX_INA3221_CONFIG_AVG_SHIFT) |
-              (ctbus << EX_INA3221_CONFIG_BUS_CT_SHIFT) |
-              (ctshunt << EX_INA3221_CONFIG_SHUNT_CT_SHIFT);
+    result = ina3221I2CWriteRegister(
+        ((INA3221Driver *)ip)->config->i2cp,
+        ((INA3221Driver *)ip)->config->slaveaddress,
+        EX_INA3221_REG_CONFIG,
+        avg | ctbus | ctshunt | EX_INA3221_CHANNEL_MODE);
 
-    result =
-        ina3221I2CWriteRegister(((INA3221Driver *)ip)->config->i2cp,
-                                ((INA3221Driver *)ip)->config->slaveaddress,
-                                EX_INA3221_REG_CONFIG,
-                                config);
     if (result == MSG_OK) {
         result = ina3221_poll_done(((INA3221Driver *)ip)->config->i2cp,
                                    ((INA3221Driver *)ip)->config->slaveaddress);
@@ -139,7 +149,9 @@ static msg_t sens_read_raw(void *ip, int32_t axes[])
                 shunt_regs[i],
                 &value);
             axes[i] = ((int16_t)value) / 8;
-            value = 0;
+        }
+        if (result == MSG_OK) {
+            uint16_t value = 0;
             result = ina3221I2CReadRegister(
                 ((INA3221Driver *)ip)->config->i2cp,
                 ((INA3221Driver *)ip)->config->slaveaddress,
