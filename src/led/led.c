@@ -26,8 +26,10 @@ struct _leds_t {
 static THD_FUNCTION(ThreadLeds, arg)
 {
     leds_t *leds = (leds_t *)arg;
+    systime_t sleepuntil = chVTGetSystemTimeX();
     chRegSetThreadName("leds");
     while (true) {
+        sleepuntil += TIME_MS2I(100);
         for (size_t i = 0; i < leds->count; i++) {
             if (leds->leds[i].count == 0) {
                 if (!leds->leds[i].state) {
@@ -48,7 +50,7 @@ static THD_FUNCTION(ThreadLeds, arg)
                 leds->leds[i].count--;
             }
         }
-        chThdSleepMilliseconds(100);
+        chThdSleepUntil(sleepuntil);
     }
 }
 
