@@ -126,7 +126,9 @@ CSRC = $(ALLCSRC) \
        src/cli/cmd_identity.c \
        src/cli/cmd_reset.c \
        src/cli/cmd_ina3221.c \
+       src/cli/cmd_pca9546a.c \
        src/drivers/ina3221.c \
+       src/drivers/pca9546a.c \
        src/fs/fs.c \
        src/led/led.c \
        src/usb/usbcfg.c \
@@ -168,7 +170,8 @@ UDEFS = -DCHPRINTF_USE_FLOAT=TRUE \
       -DLFS_NO_DEBUG \
       -DLFS_NO_WARN \
       -DLFS_NO_ERROR \
-      -DINA3221_USE_I2C
+      -DINA3221_USE_I2C \
+      -DPCA9546A_USE_I2C
 
 # Define ASM defines here
 UADEFS =

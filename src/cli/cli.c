@@ -13,11 +13,13 @@
 void cmd_identity(BaseSequentialStream *, int, char *[]);
 void cmd_reset(BaseSequentialStream *, int, char *[]);
 void cmd_ina3221(BaseSequentialStream *, int, char *[]);
+void cmd_pca9546a(BaseSequentialStream *, int, char *[]);
 
 static const ShellCommand commands[] = {
     {"identity", cmd_identity},
     {"reset", cmd_reset},
     {"ina3221", cmd_ina3221},
+    {"pca9546a", cmd_pca9546a},
     {NULL, NULL},
 };
 
