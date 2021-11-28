@@ -89,7 +89,6 @@ static size_t sens_get_axes_number(void *ip)
     return 2 * INA3221_NUM_CHANNELS;
 }
 
-
 static msg_t sens_read_raw(void *ip, int32_t axes[])
 {
     static const uint8_t shunt_regs[INA3221_NUM_CHANNELS] = {
