@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ex_async.h"
 #include "ex_thermometer.h"
 
 #define EX_TMP117_VERSION "1.0.0"
@@ -112,7 +113,10 @@ typedef struct {
 
 #define _tmp117_methods_alone
 
-#define _tmp117_methods _base_object_methods _tmp117_methods_alone
+#define _tmp117_methods                                                        \
+    _base_object_methods _base_sensor_methods_alone                            \
+        _base_thermometer_methods_alone _base_async_methods_alone              \
+            _tmp117_methods_alone
 
 struct TMP117VMT {
     _tmp117_methods
@@ -120,10 +124,11 @@ struct TMP117VMT {
 
 #define _tmp117_data                                                           \
     tmp117_state_t state;                                                      \
-    const TMP117Config *config;
+    const TMP117Config *config;                                                \
+    _base_async_data
 
 struct TMP117Driver {
-    const struct BaseThermometerVMT *vmt;
+    const struct TMP117VMT *vmt;
     BaseThermometer current_if;
     _tmp117_data
 };

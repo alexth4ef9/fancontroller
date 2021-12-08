@@ -13,6 +13,8 @@
 
 #define EX_TMP117_MODE (EX_TMP117_CONFIG_MOD0 | EX_TMP117_CONFIG_MOD1)
 
+static msg_t start_acquire(void *ip);
+
 #if (TMP117_USE_I2C)
 static msg_t tmp117I2CReadRegister(I2CDriver *i2cp,
                                    tmp117_sad_t addr,
@@ -84,20 +86,15 @@ static size_t sens_get_axes_number(void *ip)
 
 static msg_t sens_read_raw(void *ip, int32_t axes[])
 {
-    uint16_t avg, conv;
-
     msg_t result = MSG_OK;
 
     osalDbgCheck(ip != NULL);
     osalDbgAssert((((TMP117Driver *)ip)->state == TMP117_READY),
                   "sense_read_raw(), invalid state");
 
-    avg =
-        (((TMP117Driver *)ip)->config->avgmode << EX_TMP117_CONFIG_AVG_SHIFT) &
-        EX_TMP117_CONFIG_AVG_MASK;
-    conv = (((TMP117Driver *)ip)->config->cycletime &
-            EX_TMP117_CONFIG_CONV_SHIFT) &
-           EX_TMP117_CONFIG_CONV_MASK;
+    if (!((TMP117Driver *)ip)->started) {
+        result = start_acquire(ip);
+    }
 
 #if TMP117_USE_I2C
     osalDbgAssert((((TMP117Driver *)ip)->config->i2cp->state == I2C_READY),
@@ -108,15 +105,11 @@ static msg_t sens_read_raw(void *ip, int32_t axes[])
              ((TMP117Driver *)ip)->config->i2ccfg);
 #endif
 
-    result = tmp117I2CWriteRegister(((TMP117Driver *)ip)->config->i2cp,
-                                    ((TMP117Driver *)ip)->config->slaveaddress,
-                                    EX_TMP117_REG_CONFIG,
-                                    avg | conv | EX_TMP117_MODE);
-
     if (result == MSG_OK) {
         result = tmp117_poll_done(((TMP117Driver *)ip)->config->i2cp,
                                   ((TMP117Driver *)ip)->config->slaveaddress);
     }
+    ((TMP117Driver *)ip)->started = false;
 
     if (result == MSG_OK) {
         int16_t value = 0;
@@ -221,7 +214,49 @@ static msg_t reset_sensitivity(void *ip)
     return MSG_OK;
 }
 
-static const struct BaseThermometerVMT vmt_basethermometer = {
+static msg_t start_acquire(void *ip)
+{
+    uint16_t avg, conv;
+
+    msg_t result = MSG_OK;
+
+    osalDbgCheck(ip != NULL);
+    osalDbgAssert((((TMP117Driver *)ip)->state == TMP117_READY),
+                  "start_acquire(), invalid state");
+
+    avg =
+        (((TMP117Driver *)ip)->config->avgmode << EX_TMP117_CONFIG_AVG_SHIFT) &
+        EX_TMP117_CONFIG_AVG_MASK;
+    conv = (((TMP117Driver *)ip)->config->cycletime &
+            EX_TMP117_CONFIG_CONV_SHIFT) &
+           EX_TMP117_CONFIG_CONV_MASK;
+
+#if TMP117_USE_I2C
+    osalDbgAssert((((TMP117Driver *)ip)->config->i2cp->state == I2C_READY),
+                  "start_acquire(), channel not ready");
+#if TMP117_SHARED_I2C
+    i2cAcquireBus(((TMP117Driver *)ip)->config->i2cp);
+    i2cStart(((TMP117Driver *)ip)->config->i2cp,
+             ((TMP117Driver *)ip)->config->i2ccfg);
+#endif
+
+    result = tmp117I2CWriteRegister(((TMP117Driver *)ip)->config->i2cp,
+                                    ((TMP117Driver *)ip)->config->slaveaddress,
+                                    EX_TMP117_REG_CONFIG,
+                                    avg | conv | EX_TMP117_MODE);
+
+    if (result == MSG_OK) {
+        ((TMP117Driver *)ip)->started = true;
+    }
+
+#if TMP117_SHARED_I2C
+    i2cReleaseBus(((TMP117Driver *)ip)->config->i2cp);
+#endif
+#endif
+    return result;
+}
+
+static const struct TMP117VMT vmt_tmp117 = {
     0,
     sens_get_axes_number,
     sens_read_raw,
@@ -230,12 +265,13 @@ static const struct BaseThermometerVMT vmt_basethermometer = {
     reset_bias,
     set_sensitivity,
     reset_sensitivity,
+    start_acquire,
 };
 
 void tmp117ObjectInit(TMP117Driver *devp)
 {
 
-    devp->vmt = &vmt_basethermometer;
+    devp->vmt = &vmt_tmp117;
     devp->config = NULL;
     devp->state = TMP117_STOP;
 }

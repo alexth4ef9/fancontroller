@@ -66,7 +66,7 @@ void cmd_tmp117(BaseSequentialStream *chp, int argc, char *argv[])
             thermometerReadRaw(&drv_thermometer, &raw);
             chprintf(chp, "raw: %d" SHELL_NEWLINE_STR, raw);
             thermometerReadCooked(&drv_thermometer, &cooked);
-            chprintf(chp, "raw: %f" SHELL_NEWLINE_STR, cooked);
+            chprintf(chp, "raw: %f" SHELL_NEWLINE_STR, (double)cooked);
 
             tmp117Stop(&drv_thermometer);
         } else {

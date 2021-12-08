@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ex_async.h"
 #include "ex_current.h"
 
 #define EX_INA3221_VERSION "1.0.0"
@@ -153,7 +154,10 @@ typedef struct {
 
 #define _ina3221_methods_alone
 
-#define _ina3221_methods _base_object_methods _ina3221_methods_alone
+#define _ina3221_methods                                                       \
+    _base_object_methods _base_sensor_methods_alone                            \
+        _base_current_methods_alone _base_async_methods_alone                  \
+            _ina3221_methods_alone
 
 struct INA3221VMT {
     _ina3221_methods
@@ -162,10 +166,11 @@ struct INA3221VMT {
 #define _ina3221_data                                                          \
     ina3221_state_t state;                                                     \
     const INA3221Config *config;                                               \
-    float shunts[INA3221_NUM_CHANNELS];
+    float shunts[INA3221_NUM_CHANNELS];                                        \
+    _base_async_data
 
 struct INA3221Driver {
-    const struct BaseCurrentVMT *vmt;
+    const struct INA3221VMT *vmt;
     BaseCurrent current_if;
     _ina3221_data
 };
